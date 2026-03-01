@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgres://app:app@db:5432/appdb?sslmode=disable
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend-new
+      dockerfile: Dockerfile
+    depends_on:
+      - app
+    environment:
+      - NUXT_PUBLIC_API_BASE_URL=http://app:8080
+    ports:
+      - "36245:3000"
+
+volumes:
+  db_data:
+

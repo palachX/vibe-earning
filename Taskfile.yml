@@ -1,0 +1,16 @@
+version: '3'
+
+tasks:
+  init:
+    desc: "Первичная инициализация проекта (Go модули + frontend зависимости через pnpm)"
+    cmds:
+      - go mod tidy
+      - cd frontend && pnpm install
+
+  prep:
+    desc: "Подготовка окружения и запуск backend + PostgreSQL через docker-compose"
+    cmds:
+      - docker compose up --build
+  down:
+    desc: "Остановка всего стека"
+    cmd: docker compose down --remove-orphans
