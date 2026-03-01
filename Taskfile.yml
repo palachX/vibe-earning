@@ -2,6 +2,10 @@ version: '3'
 
 tasks:
   init:
+    desc: "Запуск docker-compose (PostgreSQL + backend)"
+    cmd: docker compose up --build
+
+  deps:
     desc: "Первичная инициализация проекта (Go модули + frontend зависимости через pnpm)"
     cmds:
       - go mod tidy
@@ -9,8 +13,35 @@ tasks:
 
   prep:
     desc: "Подготовка окружения и запуск backend + PostgreSQL через docker-compose"
-    cmds:
-      - docker compose up --build
+    cmd: docker compose up --build
   down:
     desc: "Остановка всего стека"
     cmd: docker compose down --remove-orphans
+
+  restart:
+    desc: "Пересборка и запуск всех сервисов"
+    cmds:
+      - docker compose down
+      - docker compose up --build
+
+  logs:
+    desc: "Просмотр логов всех сервисов"
+    cmd: docker compose logs -f
+
+  backend:
+    desc: "Запуск только backend (с postgres)"
+    cmd: docker compose up --build db app
+
+  frontend:
+    desc: "Запуск только frontend"
+    cmd: docker compose up --build frontend
+
+  migrate:
+    desc: "Применение миграций БД"
+    cmd: docker compose exec db psql -U app -d appdb -f /docker-entrypoint-initdb.d/001_init.sql
+
+  clean:
+    desc: "Очистка контейнеров, образов и volumes"
+    cmds:
+      - docker compose down --remove-orphans -v
+      - docker system prune -f

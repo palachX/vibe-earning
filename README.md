@@ -1,5 +1,7 @@
 ## Vibe Earning — MVP системы учёта финансов
 
+![Демонстрация](https://imgur.com/a/RN8dDKv)
+
 > ⚠️ Приложение написано с использованием нейросетей для генерации кода.
 
 Простой, но полностью рабочий продукт для персонального учёта финансов:
@@ -9,6 +11,44 @@
 - **Инфраструктура**: Docker + docker-compose
 
 Все расчёты (баланс, прогноз, свободные деньги) выполняются **на backend**, frontend только отправляет данные и отображает результат.
+
+## Использование Taskfile
+
+Для удобного управления проектом используется [Task](https://taskfile.dev/). Основные команды:
+
+```bash
+# Установка Task (если еще не установлен)
+# Windows: scoop install task
+# macOS: brew install go-task
+# Linux: sudo snap install go-task --classic
+
+# Запуск всех сервисов (postgres + backend + frontend)
+task up
+
+# Остановка всех сервисов
+task down
+
+# Пересборка и запуск
+task restart
+
+# Просмотр логов
+task logs
+
+# Только backend (с postgres)
+task backend
+
+# Только frontend
+task frontend
+
+# Миграции БД
+task migrate
+
+# Очистка
+task clean
+```
+
+---
+
 
 ---
 
