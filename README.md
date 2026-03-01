@@ -1,6 +1,6 @@
 ## Vibe Earning — MVP системы учёта финансов
 
-![Демонстрация](https://imgur.com/a/RN8dDKv)
+![Демонстрация](https://imgur.com/gallery/vibeearning-RN8dDKv)
 
 > ⚠️ Приложение написано с использованием нейросетей для генерации кода.
 
