@@ -5,114 +5,153 @@
       description="Краткий обзор доходов, расходов, свободных денег и прогноза баланса."
     />
     <UPageBody>
-      <UButton
-        color="primary"
-        :loading="loading"
-        icon="i-lucide-refresh-ccw"
-        @click="refresh"
-      >
-        Обновить
-      </UButton>
-      <!-- Карточки по доходам / расходам / свободным деньгам -->
-      <div class="mb-6">
+      <div class="flex items-center justify-between mb-6">
+        <UButton
+          color="primary"
+          :loading="loading"
+          icon="i-lucide-refresh-ccw"
+          @click="refresh"
+        >
+          Обновить
+        </UButton>
+      </div>
+      
+      <div class="space-y-6">
+        <!-- Ключевые показатели: ПЕРВЫМИ, самое важное -->
         <UCard>
           <template #header>
-            <p class="text-sm font-medium">
-              Сводка по движениям средств
+            <p class="text-sm font-semibold">
+              Ключевые показатели
             </p>
           </template>
-          <div class="grid gap-4 md:grid-cols-4">
-            <div>
-              <p class="text-xs uppercase text-gray-400">
-                Доходы (все время)
-              </p>
-              <p class="mt-1 text-xl font-semibold text-emerald-400">
-                {{ totalIncomesFormatted }}
-              </p>
-              <p class="text-xs text-gray-500">
-                {{ incomes.length }} операций
-              </p>
-            </div>
-            <div>
-              <p class="text-xs uppercase text-gray-400">
-                Текущий баланс
-              </p>
-              <p class="mt-1 text-xl font-semibold text-emerald-400">
+          <div class="grid gap-6 md:grid-cols-3">
+            <div class="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <div class="flex items-center gap-2 mb-2">
+                <UIcon name="i-lucide-wallet" class="text-emerald-400" />
+                <p class="text-xs uppercase text-gray-400">
+                  Сейчас на счетах
+                </p>
+              </div>
+              <p class="text-2xl font-bold text-emerald-400">
                 {{ formattedCurrentBalance }}
               </p>
-            </div>
-            <div>
-              <p class="text-xs uppercase text-gray-400">
-                Расходы (все время)
-              </p>
-              <p class="mt-1 text-xl font-semibold text-rose-400">
-                {{ totalExpensesFormatted }}
-              </p>
-              <p class="text-xs text-gray-500">
-                {{ expenses.length }} операций
+              <p class="text-xs text-gray-500 mt-1">
+                Баланс по всем счетам
               </p>
             </div>
-            <div>
-              <p class="text-xs uppercase text-gray-400">
-                Свободные деньги
-              </p>
-              <p class="mt-1 text-xl font-semibold text-sky-300">
+            <div class="p-4 rounded-lg bg-sky-500/10 border border-sky-500/20">
+              <div class="flex items-center gap-2 mb-2">
+                <UIcon name="i-lucide-piggy-bank" class="text-sky-300" />
+                <p class="text-xs uppercase text-gray-400">
+                  Свободные деньги
+                </p>
+              </div>
+              <p class="text-2xl font-bold text-sky-300">
                 {{ freeMoneyFormatted }}
               </p>
-              <p class="text-xs text-gray-500">
-                с учётом будущих recurring (52 недели)
+              <p class="text-xs text-gray-500 mt-1">
+                После всех платежей (52 нед)
+              </p>
+            </div>
+            <div class="p-4 rounded-lg border" :class="netTotal >= 0 ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-rose-500/10 border-rose-500/20'">
+              <div class="flex items-center gap-2 mb-2">
+                <UIcon :name="netTotal >= 0 ? 'i-lucide-trending-up' : 'i-lucide-trending-down'" :class="netTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'" />
+                <p class="text-xs uppercase text-gray-400">
+                  Чистый результат
+                </p>
+              </div>
+              <p
+                class="text-2xl font-bold"
+                :class="netTotal >= 0 ? 'text-emerald-400' : 'text-rose-400'"
+              >
+                {{ netTotalFormatted }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                {{ totalIncomesFormatted }} − {{ totalExpensesFormatted }}
               </p>
             </div>
           </div>
         </UCard>
-      </div>
 
-      <!-- Формы добавления доходов и расходов -->
-      <div class="grid gap-6 lg:grid-cols-2 mb-6">
+        <!-- Быстрые действия: компактные формы -->
+        <div class="grid gap-6 lg:grid-cols-2">
+          <UCard>
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-plus-circle" class="text-emerald-400" />
+                <p class="text-sm font-medium text-emerald-400">
+                  Добавить доход
+                </p>
+              </div>
+            </template>
+            <IncomeForm />
+          </UCard>
+
+          <UCard>
+            <template #header>
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-minus-circle" class="text-rose-400" />
+                <p class="text-sm font-medium text-rose-400">
+                  Добавить расход
+                </p>
+              </div>
+            </template>
+            <ExpenseForm />
+          </UCard>
+        </div>
+
+        <!-- Прогнозы: сгруппированы вместе -->
         <UCard>
           <template #header>
-            <p class="text-sm font-medium text-emerald-400">
-              Добавить доход
-            </p>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-calendar" class="text-gray-400" />
+              <div>
+                <p class="text-sm font-medium">
+                  Прогноз: 8 недель
+                </p>
+                <p class="text-xs text-gray-400">
+                  Доходы и траты по неделям
+                </p>
+              </div>
+            </div>
           </template>
-          <IncomeForm />
+          <ForecastTable
+            :items="forecast"
+            :limit="8"
+            :recurring="recurring"
+            :expenses="expenses"
+            :incomes="incomes"
+          />
         </UCard>
 
-        <UCard>
-          <template #header>
-            <p class="text-sm font-medium text-rose-400">
-              Добавить расход
-            </p>
-          </template>
-          <ExpenseForm />
-        </UCard>
-      </div>
-      <div class="grid gap-6 lg:grid-cols-2">
         <UCard>
           <template #header>
             <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium">
-                  Прогноз на 52 недели
-                </p>
-                <p class="text-xs text-gray-400">
-                  Ожидаемый closing balance по неделям
-                </p>
-              </div>
-              <div class="flex gap-4 text-xs text-gray-400">
-                <div v-if="forecast.length">
-                  <p class="uppercase">
-                    Текущая неделя
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-line-chart" class="text-gray-400" />
+                <div>
+                  <p class="text-sm font-medium">
+                    Прогноз: 52 недели
                   </p>
-                  <p class="mt-0.5 text-gray-200">
+                  <p class="text-xs text-gray-400">
+                    Closing balance
+                  </p>
+                </div>
+              </div>
+              <div class="flex gap-3 text-xs text-gray-400">
+                <div v-if="forecast.length" class="text-right">
+                  <p class="uppercase text-[10px]">
+                    Start
+                  </p>
+                  <p class="text-gray-200">
                     {{ firstWeekRange }}
                   </p>
                 </div>
-                <div v-if="forecast.length">
-                  <p class="uppercase">
-                    Диапазон closing
+                <div v-if="forecast.length" class="text-right">
+                  <p class="uppercase text-[10px]">
+                    Диапазон
                   </p>
-                  <p class="mt-0.5 text-gray-200">
+                  <p class="text-gray-200">
                     {{ closingMinMax }}
                   </p>
                 </div>
@@ -122,123 +161,142 @@
           <ForecastChart :items="forecast" />
         </UCard>
 
+        <!-- Детализация: последние операции + графики -->
+        <div class="grid gap-6 lg:grid-cols-2">
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-arrow-down-left" class="text-emerald-400" />
+                  <p class="text-sm font-medium text-emerald-400">
+                    Последние доходы
+                  </p>
+                </div>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  to="/incomes"
+                  icon="i-lucide-arrow-right"
+                >
+                  Все
+                </UButton>
+              </div>
+            </template>
+            <div
+              v-if="!recentIncomes.length"
+              class="text-sm text-gray-400 py-4"
+            >
+              Пока нет данных.
+            </div>
+            <div v-else>
+              <UTable
+                :data="recentIncomes"
+                :columns="incomeColumns"
+                :row-class="'text-sm'"
+              />
+            </div>
+          </UCard>
+
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-arrow-up-right" class="text-rose-400" />
+                  <p class="text-sm font-medium text-rose-400">
+                    Последние расходы
+                  </p>
+                </div>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  to="/expenses"
+                  icon="i-lucide-arrow-right"
+                >
+                  Все
+                </UButton>
+              </div>
+            </template>
+            <div
+              v-if="!recentExpenses.length"
+              class="text-sm text-gray-400 py-4"
+            >
+              Пока нет данных.
+            </div>
+            <div v-else>
+              <UTable
+                :data="recentExpenses"
+                :columns="expenseColumns"
+                :row-class="'text-sm'"
+              />
+            </div>
+          </UCard>
+
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-bar-chart-2" class="text-emerald-400" />
+                  <p class="text-sm font-medium text-emerald-400">
+                  Доходы по месяцам
+                  </p>
+                </div>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  to="/incomes"
+                  icon="i-lucide-arrow-right"
+                >
+                  Детали
+                </UButton>
+              </div>
+            </template>
+            <IncomeChart :items="incomes" />
+          </UCard>
+
+          <UCard>
+            <template #header>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-bar-chart-2" class="text-rose-400" />
+                  <p class="text-sm font-medium text-rose-400">
+                    Расходы по месяцам
+                  </p>
+                </div>
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  to="/expenses"
+                  icon="i-lucide-arrow-right"
+                >
+                  Детали
+                </UButton>
+              </div>
+            </template>
+            <ExpenseChart :items="expenses" />
+          </UCard>
+        </div>
+
+        <!-- Анализ трат: внизу как дополнительная информация -->
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
-              <p class="text-sm font-medium">
-                Ближайшие 8 недель
-              </p>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-pie-chart" class="text-gray-400" />
+              <div>
+                <p class="text-sm font-medium">
+                  Анализ распределения денег
+                </p>
+                <p class="text-xs text-gray-400">
+                  Как распределяются свободные деньги и расходы (52 недели)
+                </p>
+              </div>
             </div>
           </template>
-          <ForecastTable
-            :items="forecast"
-            :limit="8"
+          <SpendingBreakdown
+            :current-balance="currentBalance"
+            :free-money="freeMoney"
+            :recurring="recurring"
+            :forecast="forecast"
           />
-        </UCard>
-      </div>
-      <!-- Последние транзакции -->
-      <div class="grid gap-6 lg:grid-cols-2">
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-emerald-400">
-                Последние доходы
-              </p>
-              <UButton
-                size="xs"
-                variant="ghost"
-                to="/incomes"
-                icon="i-lucide-arrow-right"
-              >
-                Все
-              </UButton>
-            </div>
-          </template>
-          <div
-            v-if="!recentIncomes.length"
-            class="text-sm text-gray-400"
-          >
-            Пока нет данных.
-          </div>
-          <div v-else>
-            <UTable
-              :data="recentIncomes"
-              :columns="incomeColumns"
-              :row-class="'text-sm'"
-            />
-          </div>
-        </UCard>
-
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-rose-400">
-                Последние расходы
-              </p>
-              <UButton
-                size="xs"
-                variant="ghost"
-                to="/expenses"
-                icon="i-lucide-arrow-right"
-              >
-                Все
-              </UButton>
-            </div>
-          </template>
-          <div
-            v-if="!recentExpenses.length"
-            class="text-sm text-gray-400"
-          >
-            Пока нет данных.
-          </div>
-          <div v-else>
-            <UTable
-              :data="recentExpenses"
-              :columns="expenseColumns"
-              :row-class="'text-sm'"
-            />
-          </div>
-        </UCard>
-      </div>
-
-      <!-- Графики доходов и расходов -->
-      <div class="grid gap-6 lg:grid-cols-2">
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-emerald-400">
-                График доходов по месяцам
-              </p>
-              <UButton
-                size="xs"
-                variant="ghost"
-                to="/incomes"
-                icon="i-lucide-arrow-right"
-              >
-                Детали
-              </UButton>
-            </div>
-          </template>
-          <IncomeChart :items="incomes" />
-        </UCard>
-
-        <UCard>
-          <template #header>
-            <div class="flex items-center justify-between">
-              <p class="text-sm font-medium text-rose-400">
-                График расходов по месяцам
-              </p>
-              <UButton
-                size="xs"
-                variant="ghost"
-                to="/expenses"
-                icon="i-lucide-arrow-right"
-              >
-                Детали
-              </UButton>
-            </div>
-          </template>
-          <ExpenseChart :items="expenses" />
         </UCard>
       </div>
     </UPageBody>
@@ -254,10 +312,11 @@ import IncomeForm from '~/components/IncomeForm.vue'
 import ExpenseForm from '~/components/ExpenseForm.vue'
 import IncomeChart from '~/components/IncomeChart.vue'
 import ExpenseChart from '~/components/ExpenseChart.vue'
+import SpendingBreakdown from '~/components/SpendingBreakdown.vue'
 import { UButton } from '#components'
 
 const store = useFinanceStore()
-const { forecast, loading, incomes, expenses, freeMoney, currentBalance } = storeToRefs(store)
+const { forecast, loading, incomes, expenses, recurring, freeMoney, currentBalance } = storeToRefs(store)
 
 // Последние транзакции (показываем последние 5)
 const recentIncomes = computed(() => incomes.value.slice(0, 5))
@@ -303,17 +362,34 @@ const expenseColumns = [
   } }
 ]
 
+const totalIncomes = computed(() => {
+  return incomes.value.reduce((acc, i) => acc + Number(i.amount || 0), 0)
+})
+
+const totalExpenses = computed(() => {
+  return expenses.value.reduce((acc, e) => acc + Number(e.amount || 0), 0)
+})
+
 const totalIncomesFormatted = computed(() => {
-  const sum = incomes.value.reduce((acc, i) => acc + Number(i.amount || 0), 0)
-  return sum.toLocaleString('ru-RU', {
+  return totalIncomes.value.toLocaleString('ru-RU', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })
 })
 
 const totalExpensesFormatted = computed(() => {
-  const sum = expenses.value.reduce((acc, e) => acc + Number(e.amount || 0), 0)
-  return sum.toLocaleString('ru-RU', {
+  return totalExpenses.value.toLocaleString('ru-RU', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+})
+
+const netTotal = computed(() => {
+  return totalIncomes.value - totalExpenses.value
+})
+
+const netTotalFormatted = computed(() => {
+  return netTotal.value.toLocaleString('ru-RU', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })

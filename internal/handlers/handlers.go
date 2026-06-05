@@ -279,6 +279,9 @@ func (h *Handler) getForecast(c *gin.Context) {
 		WeekStart      string `json:"week_start"`
 		OpeningBalance string `json:"opening_balance"`
 		ClosingBalance string `json:"closing_balance"`
+		IncomeTotal    string `json:"income_total"`
+		ExpenseTotal   string `json:"expense_total"`
+		RecurringTotal string `json:"recurring_total"`
 	}
 
 	out := make([]respItem, 0, len(fc))
@@ -287,6 +290,9 @@ func (h *Handler) getForecast(c *gin.Context) {
 			WeekStart:      w.WeekStart.Format("2006-01-02"),
 			OpeningBalance: w.OpeningBalance.StringFixed(2),
 			ClosingBalance: w.ClosingBalance.StringFixed(2),
+			IncomeTotal:    w.IncomeTotal.StringFixed(2),
+			ExpenseTotal:   w.ExpenseTotal.StringFixed(2),
+			RecurringTotal: w.RecurringTotal.StringFixed(2),
 		})
 	}
 

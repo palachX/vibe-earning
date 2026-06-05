@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: app
       POSTGRES_DB: appdb
     ports:
-      - "5432:5432"
+      - "8432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
@@ -30,7 +30,7 @@ services:
       - PORT=8080
       - DATABASE_URL=postgres://app:app@db:5432/appdb?sslmode=disable
     ports:
-      - "8080:8080"
+      - "8099:8080"
 
   frontend:
     build:

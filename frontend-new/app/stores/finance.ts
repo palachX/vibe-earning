@@ -28,6 +28,9 @@ export interface ForecastItem {
   week_start: string
   opening_balance: string
   closing_balance: string
+  income_total?: string
+  expense_total?: string
+  recurring_total?: string
 }
 
 export const useFinanceStore = defineStore('finance', () => {
