@@ -100,17 +100,50 @@
           </UCard>
         </div>
 
-        <!-- Прогнозы: сгруппированы вместе -->
+        <!-- Анализ распределения денег -->
         <UCard>
           <template #header>
             <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-calendar" class="text-gray-400" />
+              <UIcon name="i-lucide-pie-chart" class="text-gray-400" />
               <div>
                 <p class="text-sm font-medium">
-                  Прогноз: 8 недель
+                  Анализ распределения денег
                 </p>
                 <p class="text-xs text-gray-400">
-                  Доходы и траты по неделям
+                  Как распределяются свободные деньги и расходы (52 недели)
+                </p>
+              </div>
+            </div>
+          </template>
+          <SpendingBreakdown
+            :current-balance="currentBalance"
+            :free-money="freeMoney"
+            :recurring="recurring"
+            :forecast="forecast"
+          />
+        </UCard>
+
+        <!-- Прогнозы: сгруппированы вместе -->
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-lucide-calendar" class="text-gray-400" />
+                <div>
+                  <p class="text-sm font-medium">
+                    Прогноз: 8 недель
+                  </p>
+                  <p class="text-xs text-gray-400">
+                    Доходы и траты по неделям
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="uppercase text-[10px] text-gray-400">
+                  Текущая неделя
+                </p>
+                <p class="text-gray-200">
+                  {{ currentWeekRange }}
                 </p>
               </div>
             </div>
@@ -139,6 +172,14 @@
                 </div>
               </div>
               <div class="flex gap-3 text-xs text-gray-400">
+                <div class="text-right">
+                  <p class="uppercase text-[10px]">
+                    Текущая неделя
+                  </p>
+                  <p class="text-gray-200">
+                    {{ currentWeekRange }}
+                  </p>
+                </div>
                 <div v-if="forecast.length" class="text-right">
                   <p class="uppercase text-[10px]">
                     Start
@@ -275,29 +316,6 @@
             <ExpenseChart :items="expenses" />
           </UCard>
         </div>
-
-        <!-- Анализ трат: внизу как дополнительная информация -->
-        <UCard>
-          <template #header>
-            <div class="flex items-center gap-2">
-              <UIcon name="i-lucide-pie-chart" class="text-gray-400" />
-              <div>
-                <p class="text-sm font-medium">
-                  Анализ распределения денег
-                </p>
-                <p class="text-xs text-gray-400">
-                  Как распределяются свободные деньги и расходы (52 недели)
-                </p>
-              </div>
-            </div>
-          </template>
-          <SpendingBreakdown
-            :current-balance="currentBalance"
-            :free-money="freeMoney"
-            :recurring="recurring"
-            :forecast="forecast"
-          />
-        </UCard>
       </div>
     </UPageBody>
   </UPage>
@@ -401,6 +419,20 @@ const freeMoneyFormatted = computed(() => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   })
+})
+
+const currentWeekRange = computed(() => {
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  const day = startOfWeek.getDay()
+  const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1)
+  startOfWeek.setDate(diff)
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  const endOfWeek = new Date(startOfWeek)
+  endOfWeek.setDate(startOfWeek.getDate() + 6)
+
+  return `${startOfWeek.toLocaleDateString('ru-RU')} — ${endOfWeek.toLocaleDateString('ru-RU')}`
 })
 
 const firstWeekRange = computed(() => {

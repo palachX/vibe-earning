@@ -308,14 +308,14 @@ func (s *FinanceService) GetCurrentBalance(ctx context.Context, today time.Time)
 	return incomeTotal.Sub(expenseTotal).Sub(recurringSum), nil
 }
 
-// ForecastBalance returns weekly forecast starting from the next Monday for given number of weeks.
+// ForecastBalance returns weekly forecast starting from the current week's Monday for given number of weeks.
 func (s *FinanceService) ForecastBalance(ctx context.Context, weeks int) ([]models.WeekForecast, error) {
 	if weeks <= 0 {
 		return nil, errors.New("weeks must be > 0")
 	}
 
 	today := dateOnly(time.Now().UTC())
-	start := nextMonday(today)
+	start := currentWeekMonday(today)
 	end := start.AddDate(0, 0, weeks*7)
 
 	// current balance as of start-1 day
@@ -432,6 +432,15 @@ func nextMonday(t time.Time) time.Time {
 		return t
 	}
 	return t.AddDate(0, 0, daysUntilMonday)
+}
+
+func currentWeekMonday(t time.Time) time.Time {
+	weekday := int(t.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+	daysSinceMonday := weekday - 1
+	return t.AddDate(0, 0, -daysSinceMonday)
 }
 
 type datedTx struct {

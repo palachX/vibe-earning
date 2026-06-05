@@ -171,7 +171,12 @@
                 />
               </td>
               <td class="px-3 py-2 text-slate-100">
-                <p>{{ formatDate(item.week_start) }}</p>
+                <div class="flex items-center gap-2">
+                  <p>{{ formatDate(item.week_start) }}</p>
+                  <UBadge v-if="isCurrentWeek(item.week_start)" variant="subtle" color="primary" size="xs">
+                    Сейчас
+                  </UBadge>
+                </div>
                 <p class="text-xs text-slate-500">
                   {{ weekRangeLabel(item.week_start) }}
                 </p>
@@ -515,6 +520,20 @@ function weekRangeLabel(weekStart: string) {
   end.setDate(end.getDate() + 6)
   const fmt = (d: Date) => d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
   return `${fmt(start)} — ${fmt(end)}`
+}
+
+function isCurrentWeek(weekStart: string) {
+  const now = new Date()
+  const startOfWeek = new Date(now)
+  const day = startOfWeek.getDay()
+  const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1)
+  startOfWeek.setDate(diff)
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  const itemStart = new Date(weekStart)
+  itemStart.setHours(0, 0, 0, 0)
+
+  return startOfWeek.getTime() === itemStart.getTime()
 }
 
 function formatAmount(a: string | number | null | undefined) {
